@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Birthday, Sal</title>
+<style>
+/* ============ COLORS & FONTS (change here to restyle everything) ============ */
+:root{
+  --bg:#fff; --ink:#15171a; --soft:#80858e; --line:#e9ecf0;
+  --blue:#a9d6ff;      /* soft baby blue (fills, lines) */
+  --blue-d:#4a98d8;    /* deeper blue (text on white) */
+  --serif:Georgia,"Times New Roman",serif;
+  --hand:"Segoe Script","Bradley Hand","Brush Script MT","Comic Sans MS",cursive;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;overflow-x:hidden}
+body.locked{overflow:hidden}
+h1,h2{font-family:var(--serif);font-weight:400;letter-spacing:-.01em}
+h2{font-size:clamp(1.9rem,5vw,2.8rem);text-align:center;margin-bottom:.4rem}
+h2::after{content:"";display:block;width:34px;height:2px;background:var(--blue);margin:.8rem auto 0}
+.sub{text-align:center;color:var(--soft);margin:1rem 0 2.5rem}
+section{padding:6rem 1.25rem;max-width:1000px;margin:0 auto}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue-d);outline-offset:3px}
+.btn{background:none;border:1px solid var(--ink);color:var(--ink);padding:.8rem 2rem;border-radius:99px;transition:.3s}
+.btn:hover{background:var(--ink);color:#fff}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .9s,transform .9s}
+.reveal.in{opacity:1;transform:none}
+#bar{position:fixed;top:0;left:0;height:2px;width:0;background:var(--blue);z-index:30}
+
+/* ============ WELCOME SCREEN ============ */
+#welcome{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.5rem;transition:opacity 1.2s,visibility 1.2s}
+#welcome.gone{opacity:0;visibility:hidden}
+#welcome small{color:var(--soft);font-family:var(--serif);font-style:italic;font-size:1.1rem}
+#welcome h1{font-size:clamp(4rem,19vw,10rem);line-height:1.05;margin:.3rem 0 .6rem}
+#welcome h1::after{content:"";display:block;height:6px;width:60%;margin:.2rem auto 0;background:var(--blue);border-radius:6px;animation:grow 1.6s ease-out both}
+@keyframes grow{from{width:0}}
+#welcome p{margin:1.2rem 0 2.2rem;color:var(--soft)}
+#stars{position:fixed;inset:0;z-index:55;pointer-events:none}
+main,nav,footer{position:relative;z-index:1}
+
+/* ============ NAV ============ */
+nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;gap:1.3rem;justify-content:center;padding:.9rem 1rem;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 1s}
+nav.show{opacity:1;pointer-events:auto}
+nav a{color:var(--soft);text-decoration:none;font-size:.9rem;transition:.2s}
+nav a:hover{color:var(--blue-d)}
+
+/* ============ HERO ============ */
+#top{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+#top h2{font-size:clamp(2.2rem,7vw,4rem)}
+#top h2::after{display:none}
+#age{font-family:var(--serif);font-size:clamp(6rem,24vw,13rem);line-height:1;color:var(--blue)}
+#since{margin:.5rem 0 0;color:var(--blue-d);font-family:var(--hand)}
+
+/* ============ LETTER ============ */
+.envelope{display:block;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;width:min(320px,90%);padding:2rem 1rem;text-align:center;transition:.3s;box-shadow:0 6px 20px rgba(60,100,140,.07)}
+.envelope:hover{border-color:var(--blue);transform:translateY(-3px)}
+.envelope span{display:block;font-size:2rem;margin-bottom:.3rem;color:var(--blue-d)}
+.paper{max-height:0;overflow:hidden;opacity:0;transition:max-height 1.6s ease,opacity 1s,margin .6s;background:#fff;border-radius:6px;max-width:640px;margin:0 auto;border:1px solid var(--line);box-shadow:0 10px 30px rgba(60,100,140,.1);
+  background-image:repeating-linear-gradient(transparent 0 33px,#dcecfa 33px 34px)}
+.paper.open{max-height:7000px;opacity:1;margin-top:2rem}
+.paper .inner{padding:2rem 1.6rem 2.4rem;font-family:var(--hand);font-size:1.1rem;line-height:34px}
+.paper p{margin-bottom:34px}
+.paper .sig{text-align:right}
+
+/* ============ GALLERY: polaroids along a winding road ============ */
+.road{position:relative;padding:1rem 0 3.5rem}
+.road svg{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.pol{position:relative;z-index:1;display:block;width:min(250px,58%);background:#fff;border:0;padding:12px 12px 0;text-align:center;margin-bottom:2.2rem;
+  box-shadow:0 8px 24px rgba(30,60,90,.14),0 1px 3px rgba(0,0,0,.1);transform:rotate(var(--tilt));transition:transform .4s,box-shadow .4s}
+.pol.l{margin-left:3%}.pol.r{margin-left:auto;margin-right:3%}
+.pol:hover,.pol:focus-visible{transform:rotate(0) scale(1.06);z-index:2;box-shadow:0 16px 36px rgba(30,60,90,.2)}
+.pol::before{content:"";position:absolute;top:-10px;left:50%;width:70px;height:20px;margin-left:-35px;background:rgba(169,214,255,.6);transform:rotate(-3deg)}
+.pol img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#eef6fd}
+.pol span{display:block;font-family:var(--hand);font-size:.85rem;color:#333;padding:.7rem .2rem .9rem;line-height:1.3}
+#lightbox{position:fixed;inset:0;z-index:60;background:rgba(255,255,255,.96);display:none;align-items:center;justify-content:center;flex-direction:column;padding:1rem}
+#lightbox.open{display:flex}
+#lightbox img{max-width:92vw;max-height:76vh;border:12px solid #fff;box-shadow:0 14px 44px rgba(30,60,90,.25)}
+#lightbox p{margin-top:1rem;color:var(--soft);font-family:var(--hand);text-align:center}
+.lb{position:absolute;background:none;border:0;font-size:2.4rem;color:var(--blue-d);padding:.6rem 1rem}
+.lb.x{top:.5rem;right:.5rem}.lb.prev{left:.3rem;top:50%}.lb.next{right:.3rem;top:50%}
+
+/* ============ MEMORIES ============ */
+.timeline{max-width:720px;margin:0 auto;padding-left:2rem;border-left:1px dashed var(--blue)}
+.mem{position:relative;margin-bottom:3rem}
+.mem::before{content:"";position:absolute;left:calc(-2rem - 5px);top:.6rem;width:9px;height:9px;border-radius:50%;background:var(--blue-d)}
+.mem time{color:var(--blue-d);font-size:.9rem}
+.mem h3{font-family:var(--serif);font-weight:400;font-size:1.5rem;margin:.1rem 0 .5rem}
+.mem p{color:#4a4e55}
+
+/* ============ REASONS ============ */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem}
+.card{perspective:900px;height:160px;background:none;border:0}
+.card .f{position:relative;width:100%;height:100%;transition:transform .7s;transform-style:preserve-3d}
+.card.flip .f{transform:rotateY(180deg)}
+.card .a,.card .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:1.1rem;text-align:center}
+.card .a{border:1px solid var(--line);background:#fff;font-family:var(--serif);font-size:1.25rem;box-shadow:0 4px 14px rgba(60,100,140,.06)}
+.card:hover .a{border-color:var(--blue)}
+.card .b{background:var(--blue);color:var(--ink);transform:rotateY(180deg);font-size:.95rem;line-height:1.5}
+.count{text-align:center;color:var(--soft);margin-top:1.5rem;font-size:.9rem}
+
+/* ============ MESSAGE JAR ============ */
+.jar{text-align:center}
+#msg{min-height:140px;max-width:560px;margin:2rem auto 0;font-family:var(--hand);font-size:1.4rem;color:var(--blue-d);display:flex;align-items:center;justify-content:center}
+#msg.pop{animation:pop .6s}
+@keyframes pop{from{opacity:0;transform:scale(.9) rotate(-2deg)}to{opacity:1;transform:none}}
+
+/* ============ SURPRISE ============ */
+#surprise{text-align:center}
+.cake{display:flex;justify-content:center;gap:1.4rem;margin:3rem 0 0;height:90px;align-items:flex-end}
+.candle{border:1px solid #bcd9f2;width:20px;height:68px;position:relative;border-radius:3px 3px 0 0;background:#e3f1fd}
+.candle::before{content:"";position:absolute;left:50%;top:-26px;width:12px;height:24px;margin-left:-6px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(#fff,var(--blue) 70%);box-shadow:0 0 18px var(--blue);animation:flick .3s infinite alternate}
+.candle.out::before{opacity:0;animation:none}
+.candle.out::after{content:"";position:absolute;left:50%;top:-40px;width:3px;height:30px;background:rgba(0,0,0,.12);filter:blur(3px);animation:smoke 1.5s forwards}
+@keyframes flick{from{transform:scale(1,1)}to{transform:scale(.88,1.1) rotate(2deg)}}
+@keyframes smoke{to{transform:translateY(-40px);opacity:0}}
+.base{width:min(360px,80%);height:54px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:8px 8px 18px 18px;box-shadow:0 6px 18px rgba(60,100,140,.08)}
+#final{max-height:0;overflow:hidden;opacity:0;transition:max-height 2s,opacity 2s;max-width:620px;margin:0 auto}
+#final.show{max-height:1500px;opacity:1;margin-top:3rem}
+#final p{font-family:var(--serif);font-size:1.2rem;margin-bottom:1rem}
+#final .big{font-family:var(--hand);font-size:1.8rem;color:var(--blue-d)}
+#confetti{position:fixed;inset:0;z-index:70;pointer-events:none}
+footer{text-align:center;color:var(--soft);padding:3rem 1rem;font-size:.9rem}
+/* ============ CASSETTE LOADER ============ */
+#loader{position:fixed;inset:0;z-index:52;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .8s,visibility .8s}
+#loader.show{opacity:1;visibility:visible}
+.tape{width:min(270px,72vw);animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.reel{transform-box:fill-box;transform-origin:center;animation:spin 2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loader p{margin:1.6rem 0 1rem;font-family:var(--hand);color:var(--blue-d)}
+.lbar{width:150px;height:2px;background:var(--line);overflow:hidden}
+.lbar i{display:block;height:100%;width:0;background:var(--blue-d)}
+#loader.show .lbar i{animation:fill var(--ms,3000ms) ease-in-out forwards}
+@keyframes fill{to{width:100%}}
+.note{margin:1.2rem 0 0!important;font-size:.85rem}
+
+/* ============ MUSIC BUTTON ============ */
+#music{position:fixed;right:1rem;bottom:1rem;z-index:40;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:#fff;box-shadow:0 6px 18px rgba(60,100,140,.12);display:flex;gap:3px;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.5s}
+#music.show{opacity:1;pointer-events:auto}
+#music i{width:3px;height:6px;background:var(--blue-d);border-radius:2px}
+#music.on i{animation:eq .8s ease-in-out infinite alternate}
+#music.on i:nth-child(2){animation-delay:.2s}#music.on i:nth-child(3){animation-delay:.4s}
+@keyframes eq{to{height:17px}}
+
+/* ============ WISHES + WISH-TO-THE-STARS ============ */
+.wl p{font-family:var(--serif);font-size:clamp(1.3rem,3.4vw,1.9rem);text-align:center;margin:0 auto 2rem;max-width:620px;line-height:1.5}
+.wl p+p::before{content:"";display:block;width:24px;height:1px;background:var(--blue);margin:0 auto 2rem}
+.wish{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem}
+.wish input{font:inherit;border:0;border-bottom:1px solid var(--blue);padding:.5rem .2rem;width:min(320px,90%);text-align:center;background:none;color:var(--ink);outline:none}
+.wish input:focus{border-color:var(--blue-d)}
+.wishfly{position:fixed;z-index:56;pointer-events:none;font-family:var(--hand);font-size:1.2rem;color:var(--blue-d);text-shadow:0 0 14px var(--blue);transform:translateX(-50%);animation:rise 2.4s ease-in forwards}
+@keyframes rise{to{transform:translate(-50%,-70vh) scale(.3);opacity:0}}
+#sky{position:relative;height:130px;max-width:560px;margin:1.6rem auto 0;border:1px solid var(--line);border-radius:14px;background:#fbfdff}
+.sk{position:absolute;background:none;border:0;color:var(--blue-d);animation:tw 3s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.4;transform:scale(.8)}to{opacity:1;transform:scale(1.15)}}
+#skyNote{min-height:1.8em;margin-top:.8rem;font-family:var(--hand);color:var(--blue-d)}
+#wishStatus{color:var(--soft);font-size:.9rem;min-height:1.6em}
+#wishStatus a{color:var(--blue-d)}
+@media (prefers-reduced-motion:reduce){.reveal,.paper,#final,.card .f{transition-duration:.01s!important}}
+</style>
+</head>
+<body class="locked">
+
+<div id="bar"></div>
+<canvas id="stars"></canvas>
+<canvas id="confetti"></canvas>
+
+<audio id="song" loop preload="auto"></audio>
+<button id="music" aria-label="Pause music"><i></i><i></i><i></i></button>
+
+<!-- ============ CASSETTE LOADER ============ -->
+<div id="loader">
+  <svg class="tape" viewBox="0 0 220 140" fill="none" stroke="#15171a" stroke-width="2" stroke-linejoin="round" aria-hidden="true">
+    <rect x="10" y="10" width="200" height="120" rx="10" fill="#fff"/>
+    <rect x="26" y="22" width="168" height="44" rx="4" fill="#eef6fd" stroke="#a9d6ff"/>
+    <text id="tapeName" x="110" y="51" text-anchor="middle" font-family="Segoe Script,Bradley Hand,cursive" font-size="18" fill="#4a98d8" stroke="none"></text>
+    <path d="M68 130 L78 104 H142 L152 130"/>
+    <rect x="48" y="74" width="124" height="26" rx="13" fill="#fff"/>
+    <g class="reel"><circle cx="80" cy="87" r="10" fill="#fff"/><path d="M80 77V97M71.3 82L88.7 92M71.3 92L88.7 82" stroke-width="1.5"/></g>
+    <g class="reel"><circle cx="140" cy="87" r="10" fill="#fff"/><path d="M140 77V97M131.3 82L148.7 92M131.3 92L148.7 82" stroke-width="1.5"/></g>
+    <circle cx="20" cy="20" r="2" fill="#15171a"/><circle cx="200" cy="20" r="2" fill="#15171a"/><circle cx="20" cy="120" r="2" fill="#15171a"/><circle cx="200" cy="120" r="2" fill="#15171a"/>
+  </svg>
+  <p id="loadTxt">Rewinding…</p>
+  <div class="lbar"><i></i></div>
+</div>
+
+<!-- ============ 1. WELCOME SCREEN ============ -->
+<div id="welcome">
+  <small id="wGreet"></small>
+  <h1 id="wName"></h1>
+  <p id="wLine"></p>
+  <button class="btn" id="enter">Open your gift</button>
+  <p class="note">♪ Turn your sound on</p>
+</div>
+
+<nav id="nav">
+  <a href="#top">Home</a><a href="#letter">Letter</a><a href="#gallery">Photos</a><a href="#memories">Memories</a>
+  <a href="#reasons">Reasons</a><a href="#wishes">Wishes</a><a href="#jar">Messages</a><a href="#surprise">Surprise</a>
+</nav>
+
+<main>
+  <section id="top">
+    <h2 id="heroTitle"></h2>
+    <div id="age"></div>
+    <p class="sub" id="heroSub"></p>
+    <p id="since"></p>
+  </section>
+
+  <section id="letter" class="reveal">
+    <h2>A letter for you</h2>
+    <p class="sub">Tap the envelope.</p>
+    <button class="envelope" id="env"><span>✉</span>Open the letter</button>
+    <div class="paper" id="paper"><div class="inner" id="letterText"></div></div>
+  </section>
+
+  <section id="gallery" class="reveal">
+    <h2>To my favorite alien</h2>
+    <p class="sub">Tap a photo to see it bigger.</p>
+    <div class="road" id="road"><svg id="roadSvg"></svg></div>
+  </section>
+
+  <section id="memories" class="reveal">
+    <h2>Our memories</h2>
+    <p class="sub">The moments I keep coming back to.</p>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <section id="reasons" class="reveal">
+    <h2>Why you're special</h2>
+    <p class="sub">Flip every card.</p>
+    <div class="cards" id="cards"></div>
+    <p class="count" id="rcount"></p>
+  </section>
+
+  <section id="wishes" class="reveal">
+    <h2>Wishes for you</h2>
+    <p class="sub">For the year ahead.</p>
+    <div class="wl" id="wishList"></div>
+  </section>
+
+  <section id="jar" class="jar reveal">
+    <h2>Little messages</h2>
+    <p class="sub">Pull one whenever you need it.</p>
+    <button class="btn" id="pull">Pull a message</button>
+    <div id="msg" aria-live="polite"></div>
+  </section>
+
+  <section id="surprise" class="reveal">
+    <h2>One last thing</h2>
+    <p class="sub">Make a wish, then tap each candle to blow it out.</p>
+    <div class="wish"><input id="wishIn" maxlength="80" placeholder="Make a wish for the year ahead" aria-label="Your wish"><button class="btn" id="wishBtn">Send it to the stars</button></div>
+    <p id="wishStatus" aria-live="polite"></p>
+    <div id="sky"></div>
+    <p id="skyNote"></p>
+    <div class="cake" id="cake"></div>
+    <div class="base"></div>
+    <div id="final"></div>
+  </section>
+</main>
+<footer id="footer"></footer>
+
+<!-- ============ LIGHTBOX ============ -->
+<div id="lightbox" role="dialog" aria-label="Photo viewer">
+  <button class="lb x" id="lbX" aria-label="Close">×</button>
+  <button class="lb prev" id="lbP" aria-label="Previous">‹</button>
+  <button class="lb next" id="lbN" aria-label="Next">›</button>
+  <img id="lbImg" alt="">
+  <p id="lbCap"></p>
+</div>
+
+<script>
+/* =====================================================================
+   ★ EDIT THIS SECTION — it holds ALL your personal content ★
+   Keep the quotes " " and commas , exactly as they are. Only change the words.
+   ===================================================================== */
+const SAL = {
+
+  // --- 1. Welcome screen & hero ---
+  name:        "Sal",                                   // Their name
+  welcomeSmall:"Today is a very special day",           // Small line above the name
+  welcomeLine: "Something was made just for you.",      // Line under the name
+  age:         "21",                                    // Their new age (use "" to hide)
+  heroTitle:   "Happy Birthday",                        // Title on the main page
+  heroSub:     "Scroll down. There is a lot here for you.",
+  from:        "Your baby blue",                        // Signature on the letter
+  since:       "2024-08-18",                            // Date you met (YYYY-MM-DD). Use "" to hide the day counter
+  song:        "song.mp3",                              // Your music file, next to index.html
+  volume:      0.6,                                     // 0 (silent) to 1 (full)
+  loadMs:      3600,                                    // How long the cassette screen shows (milliseconds)
+  wishEmail:   "",                                      // Your email: Sal can send you her wish. Example: "me@mail.com"
+  wishEndpoint:"",                                      // Link where wishes get saved (Google Sheet script or Formspree). "" = only saved on her device
+  sinceText:   "days since we met",                     // Text after the number of days
+
+  // --- 2. The letter: each "..." is one paragraph. Add as many as you like. ---
+  letter: [
+    "I find myself standing in front of the screen, trying to put into words just how grateful I am for you, only to feel as though my own fingers are mocking me. Because how could anything I say ever be enough to express what you mean to me? How could words possibly do justice to someone like you?",
+    "Happy birthday, Sal! Look at you, all grown up and turning 21! I still remember meeting you when you were 18. Oh... where did all that time go? I'm getting emotional just thinking about it.",
+    "You were there in the darkness of nights when I couldn't seem to find my way, and somehow, you became my light. During a time when loneliness had worn me down, you became my refuge. You listened, you understood, and you accepted me, even with all my flaws and shortcomings. I know I haven't always been the best at showing it, and I know there are times when I fall short, but you chose to love me all the same. And that, in itself, is something I could spend a lifetime being grateful for.",
+    "I wish I could give you even a fraction of the comfort and happiness you've given me. I wish I could find the perfect words to make you understand just how much your presence has meant to me. But then again, today isn't about me, is it? Hehe.",
+    "It's your day, Sal! And I hope life is as gentle with you as you've been with my heart. I hope this new chapter brings you all the happiness, warmth, and beautiful things you deserve. May you always find reasons to smile, people who cherish you, and little moments that make life feel wonderful.",
+    "I love you, Sal. I love you with every bit of meaning those words can possibly hold. And I hope I get to tell you so, year after year, on every birthday that comes. Here's to 21, and to many, many more years of having you in my life.",
+    "Happy birthday, my dear Sal."
+  ],
+
+  // --- 3. Photos: file in the "photos" folder, plus a caption. ---
+  // Missing files automatically show a placeholder, so nothing breaks.
+  photos: [
+    { file: "photos/photo1.jpg", caption: "I really hope I can give you a hug someday" },
+    { file: "photos/photo2.jpg", caption: "I mean, we need a picture of the birthday queen, right?" },
+    { file: "photos/photo3.jpg", caption: "Can I pinky promise you that I'll stay forever?" },
+    { file: "photos/photo4.jpg", caption: "Another picture of the diva (ig my lifesaver)" },
+    { file: "photos/photo5.jpg", caption: "I love you so much, Sal. So, so much." },
+    { file: "photos/photo6.jpg", caption: "need to stop crying, lol" }
+  ],
+
+  // --- 4. Memories: date, title, story. Add or remove blocks freely. ---
+  memories: [
+    { date: "August 2024", title: "The day we met",       story: "Perhaps this is why I'll always be grateful for this team, because it brought me to you. Out of all the people I could have met, somehow, I got to meet you, and that's one of the things I'll always be thankful for." },
+    { date: "Another date",     title: "The day we got close", story: "I honestly can't remember how it happened or when exactly we went from knowing each other to becoming this close. All I know is that being with you has always felt like coming home, and I wouldn't trade that feeling for anything." },
+    { date: "dj spin bring my jim shi back",     title: "Our third birthday together",       story: "And I'm already planning to make this number thirty, then forty, and keep counting until we've spent a lifetime celebrating you. I want to be there for every birthday, every new chapter, and every version of you that the years bring" },
+    { date: "November 7, 2026",         title: "Today", story: "I'm still crying, and I'm not even joking, lol. I've never felt words betray me quite like they have today. I'm already worrying about what on earth I'll write for your next birthday, but! But! More than anything, I'm just so grateful that I get to be here, celebrating another year of your life and another year of having you in mine." }
+  ],
+
+  // --- 5. Reasons: front = short title, back = the full reason. ---
+  reasons: [
+    { front: "Your heart",        back: "Because you carry so much kindness within you, and somehow, even the smallest pieces of it make the world feel softer." },
+    { front: "Your strength",     back: "Because even when life isn't gentle with you, you keep going, and I hope you know how beautiful that quiet strength is." },
+    { front: "Your smile",    back: "Because there's something about your smile that makes even the dullest days feel a little brighter." },
+    { front: "Your love",     back: "Because the way you love makes people feel seen, heard, and cherished. You've made me feel that way more times than you know." },
+    { front: "Me with you",    back: "Because somehow, being around you makes me feel more like myself, and I wouldn't trade that feeling for anything." },
+    { front: "Just you",          back: "Because you don't need to be anything other than yourself to be someone worth loving endlessly. You, exactly as you are." }
+  ],
+
+  // --- Wishes for the year ahead: one "..." per line. Add or remove freely. ---
+  wishes: [
+    "May life always give you a thousand reasons to smile, even on the days you forget how.",
+    "I hope the world gives back all the love and kindness you've so effortlessly given to others.",
+    "May every year bring you closer to a life that feels as beautiful as you've always deserved."
+  ],
+
+  // --- 6. Little messages: shown randomly when the button is pressed. ---
+  messages: [
+    "I'm endlessly proud of you, more than words could ever explain.",
+    "look at this old lady turning 21 LMAO",
+    "Btw bring my Jim backkk!",
+    "Whatever this year brings, I'm with you.",
+    "67",
+    "Thank you for being exactly who you are.",
+    "You can do it, Sal! I believe a beautiful life is waiting for you.",
+    "MY BABYYYYYY, you deserve the whole universe.",
+    "much love",
+    "Chap 2 when???????????",
+    "Yoongi marry me",
+    "sigh... I love you",
+    "Like your pinky, We are still the same",
+    "I know everything about you",
+    "We gotta trust each other",
+    "Never forgot",
+    "More than the plain 'thank you'",
+    "You and me",
+    "Decided not to fight tomorrow for real",
+    "Longer than seven summers and cold winters",
+    "Longer than numerous promises and memories"
+  ],
+
+  // --- 7. Final surprise (revealed after all candles are out). One "..." per paragraph. ---
+  finalMessage: [
+    "And if there's one thing I hope you never forget, Sal, it's how much your existence means to me. I may never find the perfect words to express it, but I hope you feel loved in every little way I try to show you.",
+    "Thank you for being here, for being you, and for making some of my darkest days feel a little less lonely. I hope I get to keep celebrating you, cheering for you, and watching you grow into every beautiful version of yourself.",
+    "No matter how many birthdays pass or how far life takes us, a part of my heart will always be grateful that our paths crossed.",
+    "I love you, my girl. Happy 21st birthday. Here's to a lifetime of happiness, and hopefully, many more birthdays together."
+  ],
+  finalBig: "♡",                   // Big handwritten last line
+
+  candles: 5,                                           // How many candles on the cake
+  footer:  "much love, blue."
+};
+/* ============================ END OF EDIT AREA ============================ */
+
+
+/* ---------- Everything below makes the site work. You don't need to edit it. ---------- */
+const $ = id => document.getElementById(id);
+
+// Placeholder picture (a soft blue-and-black drawing) used when a photo file is missing
+function placeholder(n){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef6fd"/><stop offset="1" stop-color="#a9d6ff" stop-opacity=".8"/></linearGradient></defs><rect width="800" height="1000" fill="url(#g)"/><text x="400" y="500" font-family="Georgia" font-size="90" fill="#4a98d8" text-anchor="middle">Photo ${n}</text><text x="400" y="570" font-family="Georgia" font-size="30" fill="#15171a" fill-opacity=".45" text-anchor="middle">your picture goes here</text></svg>`;
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+function safeImg(img, n){ img.onerror = () => { img.onerror = null; img.src = placeholder(n); }; }
+
+// Fill text
+document.title = "Dear Sal, Always.";
+$("wGreet").textContent = SAL.welcomeSmall;
+$("wName").textContent = SAL.name;
+$("wLine").textContent = SAL.welcomeLine;
+$("heroTitle").textContent = SAL.heroTitle + ", " + SAL.name;
+$("age").textContent = SAL.age;
+$("heroSub").textContent = SAL.heroSub;
+if (SAL.since) { const d = Math.floor((Date.now() - new Date(SAL.since)) / 864e5); if (d > 0) $("since").textContent = d.toLocaleString() + " " + SAL.sinceText; }
+addEventListener("scroll", () => { const h = document.documentElement; $("bar").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; });
+$("footer").textContent = SAL.footer;
+
+// Welcome -> site
+$("tapeName").textContent = "For " + SAL.name;
+const song = $("song"), music = $("music");
+song.src = SAL.song; song.volume = SAL.volume;
+song.addEventListener("play", () => { music.classList.add("on"); music.setAttribute("aria-label", "Pause music"); });
+song.addEventListener("pause", () => { music.classList.remove("on"); music.setAttribute("aria-label", "Play music"); });
+song.addEventListener("error", () => { music.style.display = "none"; });   // no song.mp3 found: hide the button
+music.onclick = () => song.paused ? song.play().catch(() => {}) : song.pause();
+
+// "Open your gift": cassette screen + music start (the click lets the browser play sound)
+$("enter").onclick = () => {
+  const p = song.play(); if (p) p.catch(() => {});
+  $("loader").style.setProperty("--ms", SAL.loadMs + "ms");
+  $("loader").classList.add("show"); $("welcome").classList.add("gone"); shower(90);
+  setTimeout(() => { $("loadTxt").textContent = "Pressing play…"; }, SAL.loadMs * .6);
+  setTimeout(() => {
+    $("loader").classList.remove("show"); document.body.classList.remove("locked");
+    $("nav").classList.add("show"); music.classList.add("show"); burst(80); shower(60);
+  }, SAL.loadMs);
+};
+
+// Letter
+SAL.letter.forEach(t => { const p = document.createElement("p"); p.textContent = t; $("letterText").appendChild(p); });
+const sig = document.createElement("p"); sig.className = "sig"; sig.textContent = "much love, " + SAL.from; $("letterText").appendChild(sig);
+$("env").onclick = () => {
+  const open = $("paper").classList.toggle("open");
+  $("env").lastChild.textContent = open ? "Close the letter" : "Open the letter";
+  if (open) burst(110, $("env"));
+};
+
+// Gallery + lightbox
+let cur = 0;
+const road = $("road"), svg = $("roadSvg"), pols = [];
+SAL.photos.forEach((p, i) => {
+  const b = document.createElement("button"); b.className = "pol " + (i % 2 ? "r" : "l");
+  b.style.setProperty("--tilt", (((i % 3) - 1) * 3 + (i % 2 ? 2 : -2)) + "deg");
+  b.setAttribute("aria-label", "Open " + p.caption);
+  const im = document.createElement("img"); im.alt = p.caption; im.loading = "lazy"; safeImg(im, i + 1); im.src = p.file;
+  const s = document.createElement("span"); s.textContent = p.caption;
+  b.append(im, s); b.onclick = () => show(i); road.appendChild(b); pols.push(b);
+});
+// Draws the dotted winding road behind the polaroids
+function drawRoad(){
+  const w = road.clientWidth, h = road.clientHeight; svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  let d = `M ${w / 2} 0`, px = w / 2, py = 0;
+  pols.forEach((b, i) => { const x = w * (i % 2 ? .35 : .65), y = b.offsetTop + b.offsetHeight / 2, m = (py + y) / 2; d += ` C ${px} ${m}, ${x} ${m}, ${x} ${y}`; px = x; py = y; });
+  d += ` C ${px} ${(py + h) / 2}, ${w / 2} ${(py + h) / 2}, ${w / 2} ${h - 34}`;
+  svg.innerHTML = `<path d="${d}" fill="none" stroke="#a9d6ff" stroke-width="3" stroke-dasharray="1 12" stroke-linecap="round"/><text x="${w / 2}" y="${h - 8}" text-anchor="middle" font-size="24" fill="#8cc8f5">♡</text>`;
+}
+addEventListener("load", drawRoad); addEventListener("resize", drawRoad);
+function show(i){
+  cur = (i + SAL.photos.length) % SAL.photos.length;
+  const p = SAL.photos[cur]; const im = $("lbImg");
+  safeImg(im, cur + 1); im.src = p.file; im.alt = p.caption; $("lbCap").textContent = p.caption;
+  $("lightbox").classList.add("open");
+}
+const closeLb = () => $("lightbox").classList.remove("open");
+$("lbX").onclick = closeLb; $("lbP").onclick = () => show(cur - 1); $("lbN").onclick = () => show(cur + 1);
+$("lightbox").onclick = e => { if (e.target.id === "lightbox") closeLb(); };
+document.addEventListener("keydown", e => {
+  if (!$("lightbox").classList.contains("open")) return;
+  if (e.key === "Escape") closeLb(); if (e.key === "ArrowLeft") show(cur - 1); if (e.key === "ArrowRight") show(cur + 1);
+});
+
+// Memories
+SAL.memories.forEach(m => {
+  const d = document.createElement("div"); d.className = "mem reveal";
+  d.innerHTML = "<time></time><h3></h3><p></p>";
+  d.children[0].textContent = m.date; d.children[1].textContent = m.title; d.children[2].textContent = m.story;
+  $("timeline").appendChild(d);
+});
+
+// Reasons
+let flipped = 0; const total = SAL.reasons.length;
+const rc = () => $("rcount").textContent = flipped === total ? "You found all " + total + " reasons. There are many more." : flipped + " of " + total + " found";
+SAL.reasons.forEach(r => {
+  const c = document.createElement("button"); c.className = "card";
+  c.innerHTML = '<div class="f"><div class="a"></div><div class="b"></div></div>';
+  c.querySelector(".a").textContent = r.front; c.querySelector(".b").textContent = r.back;
+  c.onclick = () => { if (!c.classList.contains("flip")) { flipped++; rc(); } c.classList.toggle("flip"); };
+  $("cards").appendChild(c);
+});
+rc();
+
+// Wishes list
+SAL.wishes.forEach(w => { const p = document.createElement("p"); p.textContent = w; $("wishList").appendChild(p); });
+
+// Wish to the stars: the wish glows, floats away and becomes a star in the sky below
+let wishes = []; try { wishes = JSON.parse(localStorage.getItem("salWishes") || "[]"); } catch (e) {}
+function addStar(w){
+  const s = document.createElement("button"); s.className = "sk"; s.textContent = "✦"; s.setAttribute("aria-label", "Read a wish");
+  s.style.left = (6 + Math.random() * 86) + "%"; s.style.top = (8 + Math.random() * 70) + "%";
+  s.style.fontSize = (.9 + Math.random() * .9) + "rem"; s.style.animationDelay = (Math.random() * 2) + "s";
+  s.onclick = () => { $("skyNote").textContent = w; }; $("sky").appendChild(s);
+}
+wishes.forEach(addStar);
+$("skyNote").textContent = wishes.length ? "Tap a star to read a wish." : "Your wishes will shine here.";
+async function deliver(v){
+  const st = $("wishStatus"); st.textContent = "Sending your wish…";
+  const url = SAL.wishEndpoint;
+  if (url) {
+    try {
+      const sheet = url.includes("script.google.com");   // Google Sheet script vs. a form service like Formspree
+      const body = JSON.stringify({ from: SAL.name, wish: v, date: new Date().toISOString() });
+      const r = await fetch(url, sheet
+        ? { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body }
+        : { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body });
+      if (sheet || r.ok) { st.textContent = "Your wish was delivered ♡"; return; }
+    } catch (e) {}
+  }
+  st.textContent = "Your wish is safe here on this device ✦";
+  if (SAL.wishEmail) {
+    const a = document.createElement("a"); a.style.marginLeft = ".5rem";
+    a.href = "mailto:" + SAL.wishEmail + "?subject=" + encodeURIComponent("A wish from " + SAL.name) + "&body=" + encodeURIComponent(v);
+    a.textContent = "Email a copy"; st.appendChild(a);
+  }
+}
+$("wishBtn").onclick = () => {
+  const v = $("wishIn").value.trim(); if (!v) { $("wishIn").focus(); return; }
+  const r = $("wishIn").getBoundingClientRect(), s = document.createElement("span");
+  s.className = "wishfly"; s.textContent = v; s.style.left = (r.left + r.width / 2) + "px"; s.style.top = r.top + "px";
+  document.body.appendChild(s); setTimeout(() => s.remove(), 2600);
+  for (let i = 0; i < 18; i++) trail.push({ x: r.left + Math.random() * r.width, y: r.top + Math.random() * 20, r: 4 + Math.random() * 5, life: 1, rot: Math.random() * 3 });
+  burst(30, $("wishBtn")); $("wishIn").value = "";
+  setTimeout(() => {
+    wishes.push(v); try { localStorage.setItem("salWishes", JSON.stringify(wishes)); } catch (e) {}
+    addStar(v); $("skyNote").textContent = "Your wish is up there now ✦"; burst(25, $("sky"));
+  }, 2300);
+  deliver(v);
+};
+$("wishIn").addEventListener("keydown", e => { if (e.key === "Enter") $("wishBtn").click(); });
+
+// Message jar (never repeats until all are seen)
+let pool = [];
+$("pull").onclick = () => {
+  if (!pool.length) pool = [...SAL.messages].sort(() => Math.random() - .5);
+  const m = $("msg"); m.textContent = pool.pop(); m.classList.remove("pop"); void m.offsetWidth; m.classList.add("pop");
+  $("pull").textContent = "Pull another"; burst(45, $("pull"));
+};
+
+// Candles + surprise
+let lit = SAL.candles;
+for (let i = 0; i < SAL.candles; i++) {
+  const c = document.createElement("button"); c.className = "candle"; c.setAttribute("aria-label", "Blow out candle " + (i + 1));
+  c.onclick = () => {
+    if (c.classList.contains("out")) return;
+    c.classList.add("out"); lit--;
+    if (lit === 0) {
+      SAL.finalMessage.forEach(t => { const p = document.createElement("p"); p.textContent = t; $("final").appendChild(p); });
+      const b = document.createElement("p"); b.className = "big"; b.textContent = SAL.finalBig; $("final").appendChild(b);
+      $("final").classList.add("show"); burst(220);
+      setTimeout(() => $("final").scrollIntoView({ behavior: "smooth", block: "center" }), 600);
+    }
+  };
+  $("cake").appendChild(c);
+}
+
+// Reveal on scroll
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .12 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+document.querySelectorAll(".mem").forEach(el => io.observe(el));
+
+// Small blue stars falling from the top. Click anywhere or move the mouse for a sparkle.
+const sc = $("stars"), sx = sc.getContext("2d");
+let fall = [], trail = [];
+function sizeStars(){ sc.width = innerWidth; sc.height = innerHeight; } sizeStars(); addEventListener("resize", sizeStars);
+function newStar(y){ return { x: Math.random() * sc.width, y, r: 3 + Math.random() * 5, vy: .6 + Math.random() * 1.2, ph: Math.random() * 6, rot: Math.random() * 3 }; }
+for (let i = 0; i < 45; i++) fall.push(newStar(Math.random() * sc.height));   // stars already in the sky when the page opens
+function shower(n){ for (let i = 0; i < n; i++) fall.push(newStar(-Math.random() * sc.height)); }   // a burst of stars from above
+function star(x, y, r, a, rot){
+  sx.save(); sx.translate(x, y); sx.rotate(rot); sx.globalAlpha = a; sx.beginPath();
+  for (let i = 0; i < 8; i++) { const rr = i % 2 ? r * .35 : r, an = i * Math.PI / 4; sx.lineTo(Math.cos(an) * rr, Math.sin(an) * rr); }
+  sx.closePath(); sx.fill(); sx.restore();
+}
+addEventListener("pointermove", e => { if (Math.random() < .4) trail.push({ x: e.clientX, y: e.clientY, r: 4 + Math.random() * 4, life: 1, rot: Math.random() * 3 }); });
+addEventListener("pointerdown", e => { for (let i = 0; i < 7; i++) trail.push({ x: e.clientX + (Math.random() - .5) * 40, y: e.clientY + (Math.random() - .5) * 40, r: 4 + Math.random() * 5, life: 1, rot: Math.random() * 3 }); });
+(function tick(t){
+  sx.clearRect(0, 0, sc.width, sc.height); sx.fillStyle = "#6fb4ea";
+  if (Math.random() < .12) fall.push({ x: Math.random() * sc.width, y: -12, r: 3 + Math.random() * 5, vy: .6 + Math.random() * 1.2, ph: Math.random() * 6, rot: Math.random() * 3 });
+  fall.forEach(s => { s.y += s.vy; s.x += Math.sin(t / 900 + s.ph) * .5; s.rot += .012; star(s.x, s.y, s.r, .85, s.rot); });
+  fall = fall.filter(s => s.y < sc.height + 12);
+  trail.forEach(s => { s.life -= .028; s.y += .5; star(s.x, s.y, s.r * s.life, s.life * .9, s.rot); });
+  trail = trail.filter(s => s.life > 0);
+  requestAnimationFrame(tick);
+})(0);
+
+// Confetti (blue + a little ink). burst(amount, element) fires from that element, or from the screen center.
+const cc = $("confetti"), cx = cc.getContext("2d"); let bits = [], running = false;
+function sizeC(){ cc.width = innerWidth; cc.height = innerHeight; } sizeC(); addEventListener("resize", sizeC);
+function burst(n, el){
+  let ox = innerWidth / 2, oy = innerHeight / 2;
+  if (el) { const r = el.getBoundingClientRect(); ox = r.left + r.width / 2; oy = r.top + r.height / 2; }
+  const col = ["#a9d6ff", "#7fb8ec", "#cfe6fb", "#a9d6ff", "#15171a"];
+  for (let i = 0; i < n; i++) bits.push({ x: ox, y: oy, vx: (Math.random() - .5) * 16, vy: Math.random() * -14 - 2, w: Math.random() * 8 + 4, h: Math.random() * 5 + 3, c: col[i % 5], a: Math.random() * 6, life: 1 });
+  if (!running) { running = true; loop(); }
+}
+function loop(){
+  cx.clearRect(0, 0, cc.width, cc.height);
+  bits.forEach(b => { b.vy += .28; b.x += b.vx; b.y += b.vy; b.vx *= .99; b.a += .2; b.life -= .007; cx.save(); cx.globalAlpha = Math.max(b.life, 0); cx.translate(b.x, b.y); cx.rotate(b.a); cx.fillStyle = b.c; cx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h); cx.restore(); });
+  bits = bits.filter(b => b.life > 0 && b.y < cc.height + 20);
+  if (bits.length) requestAnimationFrame(loop); else { running = false; cx.clearRect(0, 0, cc.width, cc.height); }
+}
+</script>
+</body>
+</html>
